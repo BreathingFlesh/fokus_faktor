@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fokus_faktor/database.dart';
+import 'package:fokus_faktor/main.dart';
 
 import '../settings/settings_view.dart';
 import 'sample_item.dart';
@@ -39,33 +41,42 @@ class SampleItemListView extends StatelessWidget {
       // In contrast to the default ListView constructor, which requires
       // building all Widgets up front, the ListView.builder constructor lazily
       // builds Widgets as they’re scrolled into view.
-      body: ListView.builder(
-        // Providing a restorationId allows the ListView to restore the
-        // scroll position when a user leaves and returns to the app after it
-        // has been killed while running in the background.
-        restorationId: 'sampleItemListView',
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          final item = items[index];
-
-          return ListTile(
-            title: Text('SampleItem ${item.id}'),
-            leading: const CircleAvatar(
-              // Display the Flutter Logo image asset.
-              foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-            ),
-            onTap: () {
-              // Navigate to the details page. If the user leaves and returns to
-              // the app after it has been killed while running in the
-              // background, the navigation stack is restored.
-              Navigator.restorablePushNamed(
-                context,
-                SampleItemDetailsView.routeName,
-              );
+      body: 
+        FutureBuilder<List<TodoItem>>(
+          future: database!.select(database!.todoItems).get(),
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const Text('loading data');
             }
-          );
-        },
-      ),
+            return ListView.builder(
+              // Providing a restorationId allows the ListView to restore the
+              // scroll position when a user leaves and returns to the app after it
+              // has been killed while running in the background.
+              restorationId: 'sampleItemListView',
+              itemCount: snapshot.data!.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = snapshot.data![index];
+
+                return ListTile(
+                  title: Text('${item.title}, ${item.category}'),
+                  leading: const CircleAvatar(
+                    // Display the Flutter Logo image asset.
+                    foregroundImage: AssetImage('assets/images/flutter_logo.png'),
+                  ),
+                  onTap: () {
+                    // Navigate to the details page. If the user leaves and returns to
+                    // the app after it has been killed while running in the
+                    // background, the navigation stack is restored.
+                    Navigator.restorablePushNamed(
+                      context,
+                      SampleItemDetailsView.routeName, 
+                    );
+                  }
+                );
+              },
+            );
+          },
+          )
     );
   }
 }

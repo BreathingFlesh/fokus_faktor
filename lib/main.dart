@@ -6,19 +6,23 @@ import 'src/settings/settings_service.dart';
 
 import '../database.dart';
 
+AppDatabase? database;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = AppDatabase();
+  database = AppDatabase();
 
-  await database.into(database.todoItems).insert(TodoItemsCompanion.insert(
+  // Datebank lösche
+  // await database!.delete(database!.todoItems).go();
+
+  await database!.into(database!.todoItems).insert(TodoItemsCompanion.insert(
         title: 'todo: finish drift setup',
         content: 'We can now write queries and define our own tables.',
+        category: 'gürkenkuchen.',
       ));
-  List<TodoItem> allItems = await database.select(database.todoItems).get();
+  List<TodoItem> allItems = await database!.select(database!.todoItems).get();
 
   print('items in database: $allItems');
-
 
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
